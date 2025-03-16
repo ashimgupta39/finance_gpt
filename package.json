@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "finance_gpt",
   "private": true,
   "scripts": {
     "build": "turbo run build",
