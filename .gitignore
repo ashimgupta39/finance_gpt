@@ -7,6 +7,11 @@ venv
 .pnp
 .pnp.js
 
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 # Local env files
 .env
 .env.local

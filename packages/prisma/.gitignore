@@ -1,3 +1,8 @@
 node_modules
 # Keep environment variables out of version control
 .env
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

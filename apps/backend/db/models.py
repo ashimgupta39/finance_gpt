@@ -9,6 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False)
+    profile_pic_url = Column(String,nullable=True)
 
     chats = relationship("Chat", back_populates="user")
 
