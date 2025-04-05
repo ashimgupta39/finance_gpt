@@ -1,3 +1,6 @@
+@import "tailwindcss";
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -20,7 +23,24 @@ body {
   color: var(--foreground);
   background: var(--background);
 }
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
 
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+
+.animate-typing {
+  animation: typing 2s steps(30, end), blink 0.7s step-end infinite;
+}
 * {
   box-sizing: border-box;
   padding: 0;
