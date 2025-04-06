@@ -13,7 +13,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if "session" not in request.scope:
             print("🚨 Session not found in scope!")  # Debugging
             return JSONResponse({"error": "Session not initialized"}, status_code=500)
-
+        else:
+            print("session data: ",request.session)
         session = request.session
         session_user_id = session.get("username")
         expire_at = session.get("expire_at")
@@ -27,7 +28,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if datetime.utcnow() > expire_time:
                 print("\n Session expired!")
                 return JSONResponse({"error": "Unauthorized: Session expired"}, status_code=401)
-
+        print("\n Session is valid!")
         response = await call_next(request)
         return response
 

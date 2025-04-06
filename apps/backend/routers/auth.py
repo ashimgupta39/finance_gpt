@@ -7,6 +7,8 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 from services import supabase
 import os
+from urllib.parse import urlencode
+from fastapi.responses import RedirectResponse
 load_dotenv()
 router = APIRouter()
 
@@ -57,7 +59,17 @@ async def auth_callback(request: Request):
             }
             insert_response = supabase.table("users").insert(data).execute()
 
-        return {"user": user_info, "token": token}
+        # Build frontend redirect URL
+        frontend_url = os.getenv("FRONTEND_REDIRECT_URL")
+        params = urlencode({
+            "token": token["access_token"],
+            "name": name,
+            "email": email,
+            "pic": pic_url,
+        })
+        redirect_url = f"{frontend_url}?{params}"
+
+        return RedirectResponse(url=redirect_url)
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"OAuth callback failed: {str(e)}")
