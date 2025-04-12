@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Sidebar from "@/components/sidebar";
+import MainChatWindow from "@/components/mainChatWindow";
 
 const HomePage = () => {
   const searchParams = useSearchParams();
@@ -85,11 +86,7 @@ const HomePage = () => {
             </header>
 
         {/* Main area (can add chat box later here) */}
-        <div className="flex-1 flex items-center justify-center">
-        <p className="text-lg text-gray-600">
-            Select a chat from the sidebar to continue.
-        </p>
-        </div>
+        <MainChatWindow />
       </div>
     </div>
   );

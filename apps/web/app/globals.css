@@ -41,11 +41,6 @@ body {
 .animate-typing {
   animation: typing 2s steps(30, end), blink 0.7s step-end infinite;
 }
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
 
 a {
   color: inherit;
