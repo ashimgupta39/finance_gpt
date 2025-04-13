@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useAppDispatch } from "@repo/store/hooks";
+import { useAppDispatch, useAppSelector } from "@repo/store/hooks";
 import {setSelectedChat} from "@repo/store/slices/chatSlice";
 
 type Chat = {
@@ -14,6 +14,7 @@ type ChatHeadingsProps = {
 
 const ChatHeadings = ({chats}:ChatHeadingsProps) => {
     const dispatch = useAppDispatch();
+    const selectedChat = useAppSelector((state) => state.chat.selectedChat);
     const handleChatClick = (chat : Chat) =>{
         dispatch(setSelectedChat(chat));
     }
@@ -23,8 +24,9 @@ const ChatHeadings = ({chats}:ChatHeadingsProps) => {
                 <b>+ New Chat</b>
             </li>
             {chats.map((chat, index)=>{
+                const isSelected = selectedChat && selectedChat["id"] === chat["id"];
                 return(
-                    <li className="relative p-3 my-2 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer" key={index} data-chat-id={chat["id"]} onClick = {() => handleChatClick(chat)}>
+                    <li className={`relative p-3 my-2 ${isSelected?"bg-gray-200":"bg-gray-100"} rounded hover:bg-gray-200 cursor-pointer`} key={index} data-chat-id={chat["id"]} onClick = {() => handleChatClick(chat)}>
                         {chat["company"]}
                     </li>
                 )
