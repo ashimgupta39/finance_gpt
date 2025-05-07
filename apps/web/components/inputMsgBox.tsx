@@ -1,0 +1,139 @@
+"use client"
+import React,{useEffect, useRef, useState} from "react";
+import { useAppSelector } from "@repo/store/hooks";
+import UploadPopup from "./uploadPDFPopup";
+import UploadTextPopup from "./uploadTextPopup";
+
+const InputMsgbox = () =>{
+    const [showOptions, setShowOptions] = useState(false);
+    const [showUploadPopup, setShowUploadPopup] = useState(false);
+    const [uploadType, setUploadType] = useState("");
+    const [message, setMessage] = useState("");
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const selectedChat = useAppSelector((state) => state.chat.selectedChat);
+
+    useEffect(() => {
+        if (textareaRef.current){
+            textareaRef.current.style.height = "auto";
+            const scrollHeight = textareaRef.current.scrollHeight;
+            const maxHeight = window.innerHeight * 0.2;
+            textareaRef.current.style.height = `${Math.min(scrollHeight, maxHeight)}px`;
+        }
+    },[message]);
+
+    useEffect(()=>{
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowOptions(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+    },[]);
+
+    const handleSend = () => {
+        if (!message.trim()) return;
+        console.log(`Sending message: ${message}`);
+        setMessage("");
+      };
+      const formatDateToMMDDYYYY = (isoDate: string) => {
+        const [year, month, day] = isoDate.split("-");
+        return `${month}-${day}-${year}`;
+      };
+      const handleUpload = (file: File, date: string) => {
+        console.log("Uploaded file:", file);
+        console.log("Associated date:", date);
+        // Here you can now upload to your backend with file+date
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("date_associated", formatDateToMMDDYYYY(date));
+        formData.append("chat_id", selectedChat?.id.toString() || "");
+        fetch("http://localhost:8000/file/uploadPdfFile", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("File uploaded successfully:", data);
+          })
+          .catch((error) => {
+            console.error("Error uploading file:", error);
+          });
+
+      };
+      const handleTextUpload = (text: string, date: string) => {
+        console.log("Uploaded text:", text);
+        console.log("Associated date:", date);
+        // Here you can now upload to your backend with text+date
+      };
+
+    return(
+        <>
+        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 w-[70%] bg-white border border-gray-300 rounded-3xl p-3 shadow-lg flex flex-col gap-2">
+
+          <div className="flex items-start gap-3 relative">
+            {/* + Button & Dropdown */}
+            <div className="relative self-end" ref={dropdownRef}>
+              <button
+                onClick={() => setShowOptions((prev) => !prev)}
+                className="rounded-full bg-black text-white border p-2 text-lg font-bold"
+              >
+                +
+              </button>
+              {showOptions && (
+                <div className="absolute bottom-[110%] left-0 w-40 bg-white border rounded shadow p-2 z-20">
+                  <p className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"  onClick={()=> {setShowOptions(false);setShowUploadPopup(true);setUploadType("text")}}>Add Text Context</p>
+                  <p className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded" onClick={()=> {setShowOptions(false);setShowUploadPopup(true);setUploadType("file")}}>Add PDF File</p>
+                </div>
+              )}
+            </div>
+
+            {/* Textarea */}
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              style={{ maxHeight: "20vh", minHeight: "10vh" }}
+              className="flex-1 resize-none overflow-auto  rounded px-4 py-2 focus:outline-none"
+              placeholder="Ask anything..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+
+            {/* Send Button */}
+            <button
+              onClick={handleSend}
+              className="bg-black text-white px-4 py-2 rounded self-end"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+
+        {/* Upload Popup */}
+        {showUploadPopup && (
+            uploadType === "file" ? (
+            <UploadPopup
+            onClose={() => setShowUploadPopup(false)}
+            onUpload={handleUpload}
+            />
+            ) : (
+                uploadType=="text" && (<UploadTextPopup
+                onClose={() => setShowUploadPopup(false)}
+                onUpload={handleTextUpload}
+                />)
+            )
+        )}
+        </>
+    )
+}
+
+export default InputMsgbox;
