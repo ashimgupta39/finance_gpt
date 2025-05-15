@@ -1,8 +1,9 @@
 "use client"
 import React,{useEffect, useRef, useState} from "react";
-import { useAppSelector } from "@repo/store/hooks";
+import { useAppSelector, useAppDispatch } from "@repo/store/hooks";
 import UploadPopup from "./uploadPDFPopup";
 import UploadTextPopup from "./uploadTextPopup";
+import {setFileFetchRefreshTrigger} from "@repo/store/slices/filesFetchTriggers";
 
 const InputMsgbox = () =>{
     const [showOptions, setShowOptions] = useState(false);
@@ -12,6 +13,7 @@ const InputMsgbox = () =>{
     const dropdownRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const selectedChat = useAppSelector((state) => state.chat.selectedChat);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (textareaRef.current){
@@ -64,6 +66,7 @@ const InputMsgbox = () =>{
           })
           .then((data) => {
             console.log("File uploaded successfully:", data);
+            dispatch(setFileFetchRefreshTrigger(true));
           })
           .catch((error) => {
             console.error("Error uploading file:", error);
