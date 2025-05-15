@@ -57,8 +57,19 @@ class embeddings_processor:
         sections = re.split(r"\b\w*\s*\w*\b[:]", text)
         return [s.strip() for s in sections if s.strip()]
 
+    def split_equally(self, text: str, chunk_size: int = 100) -> list:
+        # Split the text into chunks of approximately equal size of 200 words-
+        words = text.split()
+        chunks = []
+        for i in range(0, len(words), chunk_size):
+            chunk = " ".join(words[i:i + chunk_size])
+            chunks.append(chunk)
+        return chunks
+    
     def split_text_into_chunks(self, text: str, chunk_size: int = 800) -> list:
         structured_chunks = self.split_by_speakers(text)
+        if len(structured_chunks) < 3:
+            structured_chunks = self.split_equally(text, 200)
         MAX_TOKENS = chunk_size
         chunks = []
         current_chunk = ""
@@ -77,9 +88,12 @@ class embeddings_processor:
         
 
 
-    def insert_embedding(self, file: UploadFile, date_associated: str, chat_id: str, file_id: str):
-        # Extract text from PDF
-        document_text = self.extract_text_from_pdf(file)
+    def insert_embedding(self, file: UploadFile | str, date_associated: str, chat_id: str, file_id: str):
+        if isinstance(file, UploadFile):
+            # Extract text from PDF
+            document_text = self.extract_text_from_pdf(file)
+        else:
+            document_text = file
         
         # Split text into chunks
         chunks = self.split_text_into_chunks(document_text)

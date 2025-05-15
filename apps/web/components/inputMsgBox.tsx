@@ -73,10 +73,32 @@ const InputMsgbox = () =>{
           });
 
       };
-      const handleTextUpload = (text: string, date: string) => {
+      const handleTextUpload = (text: string, fileName:string, date: string) => {
         console.log("Uploaded text:", text);
         console.log("Associated date:", date);
-        // Here you can now upload to your backend with text+date
+        const formData = new FormData();
+        formData.append("text", text);
+        formData.append("file_name", fileName);
+        formData.append("date_associated", formatDateToMMDDYYYY(date));
+        formData.append("chat_id", selectedChat?.id.toString() || "");
+        fetch("http://localhost:8000/file/uploadTextFile", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("File uploaded successfully:", data);
+            dispatch(setFileFetchRefreshTrigger(true));
+          })
+          .catch((error) => {
+            console.error("Error uploading file:", error);
+          });
       };
 
     return(

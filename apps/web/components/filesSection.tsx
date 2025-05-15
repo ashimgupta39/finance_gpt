@@ -1,5 +1,5 @@
 "use client"
-import React,{useState,useEffect, useRef} from "react";
+import React,{useState,useEffect} from "react";
 import {FiX} from "react-icons/fi";
 import { useAppSelector,useAppDispatch } from "@repo/store/hooks";
 import { HiOutlineDotsVertical } from "react-icons/hi";
@@ -13,7 +13,6 @@ const FilesSection: React.FC<Props> = ({ isOpen, onClose }) => {
     const [fileList, setFileList] = useState([]);
     const dispatch = useAppDispatch();
     const [dropdownOpenId, setDropdownOpenId] = useState<string | null>(null);
-    // const dropdownRef = useRef<HTMLDivElement>(null);
     const selectedChat = useAppSelector((state) => state.chat.selectedChat);
     const fileFetchRefreshTrigger = useAppSelector((state) => state.fileFetchRefreshTrigger.triggerValue);
 
