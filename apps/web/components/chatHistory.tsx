@@ -24,7 +24,7 @@ const ChatHistory = () => {
                         console.error("Error fetching chat headings:", error);
                     }
             }
-            if (selectedChat){
+            if (selectedChat && selectedChat.id !== undefined){
                 fetchChatHistory();
             }
             

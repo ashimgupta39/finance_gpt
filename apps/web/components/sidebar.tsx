@@ -2,8 +2,10 @@
 
 import React,{useState,useEffect} from "react";
 import  ChatHeadings  from "./chatHeadings";
+import { useAppSelector } from "@repo/store/hooks";
 const Sidebar = () => {
     const [chats, setChats] = useState([]);
+    const chatsState = useAppSelector((state) => state.chat.allChats);
     useEffect( () => {
             const fetchChats = async () => {
                 try{
@@ -23,7 +25,7 @@ const Sidebar = () => {
                 }
         }
         fetchChats();
-    },[])
+    },[chatsState])
     return(
         <aside className="w-64 bg-gray-100 border-r border-gray-300 pt-4">
         <h2 className="relative text-xl font-bold text-center mb-4 top-4">Chats</h2>
