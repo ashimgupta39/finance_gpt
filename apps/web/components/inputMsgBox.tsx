@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from "@repo/store/hooks";
 import UploadPopup from "./uploadPDFPopup";
 import UploadTextPopup from "./uploadTextPopup";
 import {setFileFetchRefreshTrigger} from "@repo/store/slices/filesFetchTriggers";
+import { addChat } from "@repo/store/slices/chatHistorySlice";
 
 const InputMsgbox = () =>{
     const [showOptions, setShowOptions] = useState(false);
@@ -39,6 +40,31 @@ const InputMsgbox = () =>{
     const handleSend = () => {
         if (!message.trim()) return;
         console.log(`Sending message: ${message}`);
+        const formData = new FormData();
+        formData.append("query", message);
+        formData.append("chat_id", selectedChat?.id.toString() || "");
+        fetch("http://localhost:8000/agent/query",{
+            method: "POST",
+            credentials: "include",
+            body: formData,
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("Response:", data);
+            // For example, you can update the chat history in your state
+            dispatch(addChat({
+              "user": message,
+              "finance_gpt":data
+            }));
+        })
+        .catch((error) => {
+            console.error("Error sending message:", error);
+        });
         setMessage("");
       };
       const formatDateToMMDDYYYY = (isoDate: string) => {

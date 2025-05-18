@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from routers import auth_router,chat_router,file_router
+from routers import auth_router, chat_router, file_router, agent_router
 from services import AuthMiddleware
 import os
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+
 load_dotenv()
 
 app = FastAPI()
@@ -31,5 +32,4 @@ print("Middlewares added successfully.")
 app.include_router(auth_router, prefix="/auth")
 app.include_router(chat_router, prefix="/chat")
 app.include_router(file_router, prefix="/file")
-
-
+app.include_router(agent_router, prefix="/agent")

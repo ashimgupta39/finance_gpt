@@ -1,10 +1,13 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import { useAppSelector } from "@repo/store/hooks";
+import { useAppSelector, useAppDispatch } from "@repo/store/hooks";
 import ReactMarkdown from "react-markdown";
+import {setAllChats} from "@repo/store/slices/chatHistorySlice";
 
 const ChatHistory = () => {
     const selectedChat = useAppSelector((state) => state.chat.selectedChat);
+    const chatHistoryAllChats = useAppSelector((state) => state.chatHistory.allChats)
+    const dispatch = useAppDispatch();
     const [chatHistory, setChatHistory] = useState<Array<{ user: string; finance_gpt: string }> | null>(null);
         useEffect( () => {
                 const fetchChatHistory = async () => {
@@ -19,6 +22,7 @@ const ChatHistory = () => {
                         const data = await response.json();
                         console.log("Chat history:", data);
                         setChatHistory(data);
+                        dispatch(setAllChats(data));
                     }
                     catch(error){
                         console.error("Error fetching chat headings:", error);
@@ -39,7 +43,7 @@ const ChatHistory = () => {
                         {Array.isArray(chatHistory) && chatHistory.length > 0 ? (
                             <div className="h-[65vh] overflow-y-auto pr-2"> 
                             <div className="space-y-4 text-left">
-                            {chatHistory.map((entry: any, index: number) => (
+                            {chatHistoryAllChats.map((entry: any, index: number) => (
                                 <div key={index} className="flex flex-col gap-2">
                                     {/* User Message */}
                                     <div className="flex justify-end">
