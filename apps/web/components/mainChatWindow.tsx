@@ -8,15 +8,16 @@ import FilesSection from "./filesSection";
 const MainChatWindow = () => {
 const selectedChat = useAppSelector((state) => state.chat.selectedChat);
 const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const [disableSend, setDisableSend] = useState(false);
   return (
     <div className="flex-1 flex flex-col relative">
       <div className="text-center pt-4">
-        <ChatHistory/>
+        <ChatHistory disableSend = {disableSend}/>
         </div>
 
       {/* Sticky Input Area */}
       {selectedChat && (
-        <InputMsgbox/>
+        <InputMsgbox disableSend={disableSend} setDisableSend = {setDisableSend}/>
       )}
 
       {/* Files Tab Button (Sticky on right) */}

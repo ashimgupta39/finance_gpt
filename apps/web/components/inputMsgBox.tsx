@@ -4,9 +4,14 @@ import { useAppSelector, useAppDispatch } from "@repo/store/hooks";
 import UploadPopup from "./uploadPDFPopup";
 import UploadTextPopup from "./uploadTextPopup";
 import {setFileFetchRefreshTrigger} from "@repo/store/slices/filesFetchTriggers";
-import { addChat } from "@repo/store/slices/chatHistorySlice";
+import { addChat,removeLastChat, setAnimateLastChat } from "@repo/store/slices/chatHistorySlice";
 
-const InputMsgbox = () =>{
+type InputMsgboxProps = {
+  disableSend: boolean;
+  setDisableSend: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+const InputMsgbox = ({disableSend,setDisableSend}: InputMsgboxProps) =>{
     const [showOptions, setShowOptions] = useState(false);
     const [showUploadPopup, setShowUploadPopup] = useState(false);
     const [uploadType, setUploadType] = useState("");
@@ -39,6 +44,12 @@ const InputMsgbox = () =>{
 
     const handleSend = () => {
         if (!message.trim()) return;
+        setDisableSend(true);
+        dispatch(addChat({
+          "user": message,
+          "finance_gpt": "Fetching Response..."
+        }))
+        dispatch(setAnimateLastChat(true));
         console.log(`Sending message: ${message}`);
         const formData = new FormData();
         formData.append("query", message);
@@ -57,15 +68,19 @@ const InputMsgbox = () =>{
         .then((data) => {
             console.log("Response:", data);
             // For example, you can update the chat history in your state
+            dispatch(removeLastChat());
             dispatch(addChat({
               "user": message,
               "finance_gpt":data
             }));
+            setDisableSend(false);
         })
         .catch((error) => {
             console.error("Error sending message:", error);
+            setDisableSend(false);
         });
         setMessage("");
+        
       };
       const formatDateToMMDDYYYY = (isoDate: string) => {
         const [year, month, day] = isoDate.split("-");
@@ -157,12 +172,20 @@ const InputMsgbox = () =>{
               placeholder="Ask anything..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }
+              }
             />
 
             {/* Send Button */}
             <button
               onClick={handleSend}
-              className="bg-black text-white px-4 py-2 rounded self-end"
+              disabled = {disableSend}
+              className={`${disableSend? "bg-gray-500 cursor-not-allowed" : "bg-black"} text-white px-4 py-2 rounded self-end`}
             >
               Send
             </button>
