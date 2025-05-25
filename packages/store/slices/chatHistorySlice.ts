@@ -8,11 +8,13 @@ type ChatBlock = {
 interface ChatState {
     allChats: ChatBlock[];
     isAnimateLastChat: boolean;
+    currentMessage: string;
 }
 
 const initialState: ChatState = {
     allChats: [],
-    isAnimateLastChat: false
+    isAnimateLastChat: false,
+    currentMessage: ""
 }
 
 export const chatHistorySlice = createSlice({
@@ -30,10 +32,13 @@ export const chatHistorySlice = createSlice({
         },
         setAnimateLastChat: (state, action:PayloadAction<boolean>) => {
             state.isAnimateLastChat = action.payload;
+        },
+        setCurrentMessage: (state, action:PayloadAction<string>) => {
+            state.currentMessage = action.payload;
         }
     }
 });
 
-export const { setAllChats, addChat, removeLastChat, setAnimateLastChat } = chatHistorySlice.actions;
+export const { setAllChats, addChat, removeLastChat, setAnimateLastChat,setCurrentMessage } = chatHistorySlice.actions;
 export default chatHistorySlice.reducer;
 export type { ChatBlock, ChatState };

@@ -67,9 +67,16 @@ class embeddings_processor:
             chunks.append(chunk)
         return chunks
 
-    def split_text_into_chunks(self, text: str, chunk_size: int = 800) -> list:
+    def split_text_into_chunks(
+        self, text: str, date_associated: str, chunk_size: int = 800
+    ) -> list:
         structured_chunks = self.split_by_speakers(text)
-        if len(structured_chunks) < 3:
+        split_failed = False
+        for chunk in structured_chunks:
+            if len(chunk) > 800:
+                split_failed = True
+                break
+        if split_failed == True:
             structured_chunks = self.split_equally(text, 200)
         MAX_TOKENS = chunk_size
         chunks = []
@@ -77,13 +84,19 @@ class embeddings_processor:
 
         for section in structured_chunks:
             if self.count_tokens(current_chunk + section) > MAX_TOKENS:
-                chunks.append(current_chunk)
+                chunks.append(
+                    f"(date associated- {date_associated} )"
+                    + current_chunk.strip()
+                )
                 current_chunk = section
             else:
                 current_chunk += " " + section
 
         if current_chunk:
-            chunks.append(current_chunk)
+            chunks.append(
+                f"(date associated - {date_associated}) "
+                + current_chunk.strip()
+            )
 
         return chunks
 
@@ -100,7 +113,9 @@ class embeddings_processor:
         else:
             document_text = file
         # Split text into chunks
-        chunks = self.split_text_into_chunks(document_text)
+        chunks = self.split_text_into_chunks(
+            document_text, date_associated, 800
+        )
         # Generate and store embeddings in Qdrant
         for i, chunk in enumerate(chunks):
             response = self.openai_client.embeddings.create(

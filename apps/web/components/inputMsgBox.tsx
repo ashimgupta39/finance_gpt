@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from "@repo/store/hooks";
 import UploadPopup from "./uploadPDFPopup";
 import UploadTextPopup from "./uploadTextPopup";
 import {setFileFetchRefreshTrigger} from "@repo/store/slices/filesFetchTriggers";
-import { addChat,removeLastChat, setAnimateLastChat } from "@repo/store/slices/chatHistorySlice";
+import { addChat,removeLastChat, setAnimateLastChat, setCurrentMessage } from "@repo/store/slices/chatHistorySlice";
 
 type InputMsgboxProps = {
   disableSend: boolean;
@@ -15,7 +15,7 @@ const InputMsgbox = ({disableSend,setDisableSend}: InputMsgboxProps) =>{
     const [showOptions, setShowOptions] = useState(false);
     const [showUploadPopup, setShowUploadPopup] = useState(false);
     const [uploadType, setUploadType] = useState("");
-    const [message, setMessage] = useState("");
+    const message = useAppSelector((state) => state.chatHistory.currentMessage);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const selectedChat = useAppSelector((state) => state.chat.selectedChat);
@@ -79,7 +79,7 @@ const InputMsgbox = ({disableSend,setDisableSend}: InputMsgboxProps) =>{
             console.error("Error sending message:", error);
             setDisableSend(false);
         });
-        setMessage("");
+        dispatch(setCurrentMessage(""));
         
       };
       const formatDateToMMDDYYYY = (isoDate: string) => {
@@ -171,7 +171,7 @@ const InputMsgbox = ({disableSend,setDisableSend}: InputMsgboxProps) =>{
               className="flex-1 resize-none overflow-auto  rounded px-4 py-2 focus:outline-none"
               placeholder="Ask anything..."
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => dispatch(setCurrentMessage(e.target.value))}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();

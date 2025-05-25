@@ -4,6 +4,7 @@ import {FiX} from "react-icons/fi";
 import { useAppSelector,useAppDispatch } from "@repo/store/hooks";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { setFileFetchRefreshTrigger } from "@repo/store/slices/filesFetchTriggers";
+import { setCurrentMessage } from "@repo/store/slices/chatHistorySlice";
 
 type Props = {
     isOpen: boolean;
@@ -75,6 +76,62 @@ const FilesSection: React.FC<Props> = ({ isOpen, onClose }) => {
             console.error("Error deleting file:", error);
         }
     };
+    const handleCompute = () => {
+      dispatch(setCurrentMessage(`Give the report of this company in the following format:
+          Second Last Quarter(avg/good/bad)-
+
+          Latest Quarter(avg/good/bad)-
+
+          Long term profit uptrend(Yes/No)-
+
+          Short term profit uptrend(Yes/No)-
+
+          Special Situation(Yes/No with description)-
+
+          Futuristic Sector(Yes/No)-
+
+          Future Visibility(Yes/No)-
+
+          Guidence(%)-
+
+          Current PE Ratio-
+
+          Current PEG ratio-
+
+          Management Outlook-
+
+          Fraud or Scam(Yes/No)-
+
+          Growth Mindset and Humbleness(Yes/No with explaination)-
+
+          Salary Reasonable(Yes/No)-
+
+          Glassdoor Rating(Rating)-
+
+          Glassdoor Recommended to friend(%)-
+
+          Concalls Judgement(description)-
+
+          Industry Analysis-
+
+          1. Industry tailwinds and headwinds(Tailwind or headwind with description)-
+          2. Crisil Rating and Risks(Rating and description)-
+          3. Exit triggers-
+
+          Opportunity-
+
+          1. Growth Drivers(List)-
+          2. Timeframe of the opportunity-
+          3. Potential Upside in earnings-
+
+          Why are we buying?-
+
+          Key Tracking Metrics?-
+
+          Potential reasons/triggers to sell?-
+        `));
+      onClose();
+    }
     return (
         <div
           className={`fixed top-0 right-0 h-full w-80 bg-gray-50 shadow-lg border-l transition-transform duration-300 z-50 ${
@@ -142,7 +199,7 @@ const FilesSection: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
     
           <div className="bottom-3 bg-gray-100 left-0 w-full px-4">
-            <button className="w-full bg-black text-white py-2 my-3 rounded hover:bg-gray-900">
+            <button className="w-full bg-black text-white py-2 my-3 rounded hover:bg-gray-900" onClick={() =>handleCompute()}>
               Compute Report
             </button>
           </div>
