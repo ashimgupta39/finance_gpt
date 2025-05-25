@@ -20,6 +20,7 @@ from langchain_community.utilities import SerpAPIWrapper
 
 load_dotenv()
 
+
 class embeddings_processor:
     def __init__(self):
         self.COLLECTION_NAME = os.getenv("COLLECTION_NAME")
@@ -37,9 +38,9 @@ class embeddings_processor:
                 vectors_config=VectorParams(
                     size=3072,  # Match the embedding size of `text-embedding-3-large`
                     distance=Distance.COSINE,
-                )
+                ),
             )
-    
+
     def extract_text_from_pdf(self, file: UploadFile) -> str:
         text = ""
         with pdfplumber.open(file.file) as pdf:
@@ -49,11 +50,11 @@ class embeddings_processor:
                     text += page_text + "\n"
         return text
 
-    def count_tokens(self,text):
+    def count_tokens(self, text):
         enc = tiktoken.get_encoding("cl100k_base")
         return len(enc.encode(text))
 
-    def split_by_speakers(self,text):
+    def split_by_speakers(self, text):
         sections = re.split(r"\b\w*\s*\w*\b[:]", text)
         return [s.strip() for s in sections if s.strip()]
 
@@ -62,10 +63,10 @@ class embeddings_processor:
         words = text.split()
         chunks = []
         for i in range(0, len(words), chunk_size):
-            chunk = " ".join(words[i:i + chunk_size])
+            chunk = " ".join(words[i : i + chunk_size])
             chunks.append(chunk)
         return chunks
-    
+
     def split_text_into_chunks(self, text: str, chunk_size: int = 800) -> list:
         structured_chunks = self.split_by_speakers(text)
         if len(structured_chunks) < 3:
@@ -85,43 +86,44 @@ class embeddings_processor:
             chunks.append(current_chunk)
 
         return chunks
-        
 
-
-    def insert_embedding(self, file: UploadFile | str, date_associated: str, chat_id: str, file_id: str):
+    def insert_embedding(
+        self,
+        file: UploadFile | str,
+        date_associated: str,
+        chat_id: str,
+        file_id: str,
+    ):
         if isinstance(file, UploadFile):
             # Extract text from PDF
             document_text = self.extract_text_from_pdf(file)
         else:
             document_text = file
-        
         # Split text into chunks
         chunks = self.split_text_into_chunks(document_text)
-        
         # Generate and store embeddings in Qdrant
         for i, chunk in enumerate(chunks):
             response = self.openai_client.embeddings.create(
-                input=chunk,
-                model="text-embedding-3-large"
+                input=chunk, model="text-embedding-3-large"
             )
             embedding = response.data[0].embedding
 
             # Save to Qdrant
             self.qdrant.upsert(
-            collection_name=self.COLLECTION_NAME,
-            points=[
-                PointStruct(
-                    id=i,
-                    vector=embedding,
-                    payload={
-                                "page_content": chunks[i],
-                                "file_id": file_id,
-                                "chat_id": chat_id,
-                                "date_associated": date_associated
-                            }  # Change key from 'text' to 'page_content'
-                )
-            ]
-        )
+                collection_name=self.COLLECTION_NAME,
+                points=[
+                    PointStruct(
+                        id=i,
+                        vector=embedding,
+                        payload={
+                            "page_content": chunks[i],
+                            "file_id": file_id,
+                            "chat_id": chat_id,
+                            "date_associated": date_associated,
+                        },  # Change key from 'text' to 'page_content'
+                    )
+                ],
+            )
 
     def delete_embedding(self, fileID: str):
         # Delete embeddings from Qdrant
@@ -129,13 +131,14 @@ class embeddings_processor:
             self.qdrant.delete(
                 collection_name=self.COLLECTION_NAME,
                 points_selector=Filter(
-                must=[
-                    FieldCondition(
-                        key="file_id",
-                        match=MatchValue(value=fileID)
-                    )
-                ]
-            )
+                    must=[
+                        FieldCondition(
+                            key="file_id", match=MatchValue(value=fileID)
+                        )
+                    ]
+                ),
             )
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Qdrant Delete Error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Qdrant Delete Error: {str(e)}"
+            )

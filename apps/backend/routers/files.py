@@ -45,8 +45,9 @@ async def upload_pdf_file(
             status_code=500, detail="Failed to upload file to GCS."
         )
     try:
+        file_text = embeddings_processor.extract_text_from_pdf(file)
         embeddings_processor.insert_embedding(
-            file, date_associated, chat_id, file_id
+            file_text, date_associated, chat_id, file_id
         )
     except Exception as e:
         raise HTTPException(

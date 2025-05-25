@@ -12,7 +12,7 @@ const [disableSend, setDisableSend] = useState(false);
   return (
     <div className="flex-1 flex flex-col relative">
       <div className="text-center pt-4">
-        <ChatHistory disableSend = {disableSend}/>
+        <ChatHistory/>
         </div>
 
       {/* Sticky Input Area */}

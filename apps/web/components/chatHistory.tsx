@@ -5,16 +5,12 @@ import ReactMarkdown from "react-markdown";
 import AnimatedMarkdown from "./AnimatedMarkdown";
 import {setAllChats, setAnimateLastChat} from "@repo/store/slices/chatHistorySlice";
 
-type InputMsgboxProps = {
-  disableSend: boolean;
-};
 
-const ChatHistory = ({disableSend}: InputMsgboxProps) => {
+const ChatHistory = () => {
     const selectedChat = useAppSelector((state) => state.chat.selectedChat);
     const chatHistoryAllChats = useAppSelector((state) => state.chatHistory.allChats)
     const isAnimateLastChat = useAppSelector((state) => state.chatHistory.isAnimateLastChat);
     const dispatch = useAppDispatch();
-    const [chatHistory, setChatHistory] = useState<Array<{ user: string; finance_gpt: string }> | null>(null);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
         useEffect(() => {
             if (messagesEndRef.current) {
@@ -32,8 +28,6 @@ const ChatHistory = ({disableSend}: InputMsgboxProps) => {
                             throw new Error("Network response was not ok");
                         }
                         const data = await response.json();
-                        console.log("Chat history:", data);
-                        setChatHistory(data);
                         dispatch(setAllChats(data));
                     }
                     catch(error){
@@ -53,7 +47,7 @@ const ChatHistory = ({disableSend}: InputMsgboxProps) => {
                         <>
                         <p className="text-lg text-gray-600 mb-2">({selectedChat.company})</p>
             
-                        {Array.isArray(chatHistory) && chatHistory.length > 0 ? (
+                        {Array.isArray(chatHistoryAllChats) && chatHistoryAllChats.length > 0 ? (
                             <div className="h-[65vh] overflow-y-auto pr-2"> 
                             <div className="space-y-4 text-left">
                             {chatHistoryAllChats.map((entry: any, index: number) => {
