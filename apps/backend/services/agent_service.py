@@ -9,6 +9,7 @@ from langchain.memory import ConversationSummaryMemory
 from langchain.agents import initialize_agent
 from langchain.tools import Tool
 from langchain_community.utilities import SerpAPIWrapper
+from langchain.schema import AIMessage, HumanMessage
 
 
 class agent_processor:
@@ -73,7 +74,25 @@ class agent_processor:
             ),
         )
 
-    def run_agent(self, query: str, chat_history: list) -> str:
+    def run_agent(self, query: str, chat_history: list, company: str) -> str:
+        # Clear old memory if needed (optional)
+        self.agent.memory.clear()
 
-        response = self.agent.run(query)
+        # Inject existing history into memory
+        for turn in chat_history:
+            user_msg = HumanMessage(content=turn["user"])
+            ai_msg = AIMessage(content=turn["finance_gpt"])
+            self.agent.memory.chat_memory.add_message(user_msg)
+            self.agent.memory.chat_memory.add_message(ai_msg)
+
+        markdown_prompt = (
+            "\n\nPlease format your response in clean Markdown syntax. "
+            "Use bullet points, headers, and code blocks where appropriate so it renders properly in a ReactMarkdown component."
+        )
+
+        final_query = (
+            f"(Context- company name {company} )" + query + markdown_prompt
+        )
+        # Run the agent with current query
+        response = self.agent.run(final_query)
         return response
