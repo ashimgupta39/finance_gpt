@@ -1,5 +1,6 @@
 from fastapi import APIRouter,Query,Form,HTTPException,Request,Depends
 from services import supabase
+from routers.files import delete_file
 
 router = APIRouter()
 
@@ -39,3 +40,17 @@ async def createChat(request:Request,company:str = Form(...)):
         return supabase.table("chats").select("id,company").eq("user_id",user_id.data[0]["id"]).eq("company", company).eq("chat_history", []).execute()
     except Exception as e:
         raise HTTPException(status_code=400, detail = f"not able to create the chat: {str(e)}")
+    
+
+@router.delete("/deleteChat")
+async def deleteChat(chatID:int = Query(...)):
+    try:
+        # delete chat files from gcs blob storage and file embeddings from the vector db and files metadata from supabase-
+        files_ids = supabase.table("files").select("id").eq("chat_id", chatID).execute()
+        for file in files_ids.data:
+            await delete_file(file["id"])
+
+        # delete chat history from supabase-
+        supabase.table("chats").delete().eq("id", chatID).execute()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail = f"not able to delete the chat: {str(e)}")

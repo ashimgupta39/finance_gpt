@@ -22,15 +22,20 @@ export const chatSlice = createSlice({
         setAllChats: (state,action:PayloadAction<Chat[]>) => {
             state.allChats = action.payload;
         },
-        setSelectedChat: (state, action:PayloadAction<Chat>) => {
-            state.selectedChat = action.payload;
+        setSelectedChat: (state, action:PayloadAction<Chat|null>) => {
+                state.selectedChat = action.payload;
+            
         },
         addChat: (state,action:PayloadAction<Chat>) =>{
             state.allChats.push(action.payload);
+        },
+        removeChat: (state, action:PayloadAction<number>) => {
+            // remove the chat with the given id
+            state.allChats = state.allChats.filter(chat => chat.id !== action.payload);
         }
     }
 });
 
-export const { setAllChats, setSelectedChat, addChat } = chatSlice.actions;
+export const { setAllChats, setSelectedChat, addChat, removeChat } = chatSlice.actions;
 export default chatSlice.reducer;
 export type { Chat, ChatState };
